@@ -220,3 +220,270 @@ If you still see a blank page:
     - Check the browser console (F12 → Console tab) for errors.
     - Ensure trunk is running correctly.
     - Force reload (Ctrl + Shift + R or Cmd + Shift + R on Mac).
+
+### ✅ Step 2: Commit Your Fixes
+
+```bash
+git add src/main.rs
+git commit -m "Updated to Bevy 0.13 API and fixed trunk server issue"
+```
+
+### 📌 Next Step: Add the Lunar Lander Sprite
+
+Now that rendering works, we’ll:
+
+- Add a lander sprite
+- Apply gravity
+- Add keyboard controls
+
+## 🚀 Step 3: Adding the Lunar Lander Sprite
+
+Now that we have the black space background and gray moon surface, it's time to add the Lunar Lander itself!
+
+- 🎯 Goals for This Step
+
+  - Add a simple lander sprite
+  - Position it above the surface
+  - Ensure it's visible in the browser
+  - Commit the changes
+
+### 1️. Modify setup() to Build a Lander shape
+
+Create a group of shapes (octagon + legs).
+Update main.rs
+
+```rust
+use bevy::prelude::*;
+use bevy::math::primitives::{RegularPolygon, Rectangle};
+use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle, ColorMaterial};
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0))) // Black background
+        .add_systems(Startup, setup)
+        .run();
+}
+
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>, // ✅ ColorMaterial for 2D
+) {
+    commands.spawn(Camera2dBundle::default());
+
+    // Spawn the moon surface as a gray rectangle
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0.3, 0.3, 0.3),
+            custom_size: Some(Vec2::new(600.0, 50.0)),
+            ..Default::default()
+        },
+        transform: Transform::from_xyz(0.0, -250.0, 0.0),
+        ..Default::default()
+    });
+
+    // 🛸 Lander Parts
+    let lander_color = materials.add(ColorMaterial::from(Color::WHITE));
+
+    // Octagonal main body
+    let octagon = Mesh::from(RegularPolygon::new(15.0, 8));
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(octagon)),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(0.0, 100.0, 0.0),
+            ..Default::default()
+        },
+    ));
+
+    // Landing legs
+    let leg = Mesh::from(Rectangle::new(10.0, 2.0)); // ✅ Fix: Correct API usage
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(leg.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(-10.0, 85.0, 0.0).with_rotation(Quat::from_rotation_z(0.4)),
+            ..Default::default()
+        },
+    ));
+
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(leg.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(10.0, 85.0, 0.0).with_rotation(Quat::from_rotation_z(-0.4)),
+            ..Default::default()
+        },
+    ));
+
+    // Lower platform
+    let platform = Mesh::from(Rectangle::new(20.0, 2.0)); // ✅ Fix: Correct API usage
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(platform.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(0.0, 80.0, 0.0),
+            ..Default::default()
+        },
+    ));
+}
+```
+
+Sometimes, if errors occur, necessary to:
+
+```bash
+  cargo clean
+  trunk clean
+  trunk serve --open
+```
+
+#### The Faster Workflow
+
+Instead of cleaning every time, try this:
+
+First, just restart Trunk
+
+```bash
+  kill -9 $(lsof -t -i:8080)  # Kill the process if needed
+  trunk serve --open
+```
+
+If errors persist, then try cleaning:
+
+```
+  cargo clean && trunk clean
+  trunk serve --open
+```
+
+### Let's refactor before moving forward
+
+#### Step 1: Create a components Folder
+
+Inside your src/ folder, create a components/ directory:
+
+mkdir src/components
+
+#### Step 2: Split the Code into Modules
+
+We will create three separate files:
+
+    lander.rs → Handles the lander entity (shape, color, position).
+    environment.rs → Handles the moon surface.
+    setup.rs → Handles game setup (spawning all objects).
+
+- 📌 src/components/lander.rs (Lander Module)
+
+```rust
+use bevy::prelude::*;
+use bevy::sprite::{MaterialMesh2dBundle, Mesh2dHandle, ColorMaterial};
+use bevy::math::primitives::{RegularPolygon, Rectangle};
+
+pub fn spawn_lander(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+) {
+    let lander_color = materials.add(ColorMaterial::from(Color::WHITE));
+
+    // Octagonal main body
+    let octagon = Mesh::from(RegularPolygon::new(15.0, 8));
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(octagon)),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(0.0, 100.0, 0.0),
+            ..Default::default()
+        },
+    ));
+
+    // Landing legs
+    let leg = Mesh::from(Rectangle::new(10.0, 2.0));
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(leg.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(-10.0, 85.0, 0.0).with_rotation(Quat::from_rotation_z(0.4)),
+            ..Default::default()
+        },
+    ));
+
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(leg.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(10.0, 85.0, 0.0).with_rotation(Quat::from_rotation_z(-0.4)),
+            ..Default::default()
+        },
+    ));
+
+    // Lower platform
+    let platform = Mesh::from(Rectangle::new(20.0, 2.0));
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(platform.clone())),
+            material: lander_color.clone(),
+            transform: Transform::from_xyz(0.0, 80.0, 0.0),
+            ..Default::default()
+        },
+    ));
+}
+```
+
+- 📌 src/components/environment.rs (Moon Surface Module)
+
+```rust
+use bevy::prelude::*;
+
+pub fn spawn_environment(mut commands: Commands) {
+    // Moon surface
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0.3, 0.3, 0.3),
+            custom_size: Some(Vec2::new(600.0, 50.0)), // Wide rectangle
+            ..Default::default()
+        },
+        transform: Transform::from_xyz(0.0, -250.0, 0.0),
+        ..Default::default()
+    });
+}
+```
+
+- 📌 src/setup.rs (Setup Module)
+
+```rust
+use bevy::prelude::*;
+use crate::components::lander::spawn_lander;
+use crate::components::environment::spawn_environment;
+
+pub fn setup_game(
+    commands: Commands,
+    meshes: ResMut<Assets<Mesh>>,
+    materials: ResMut<Assets<ColorMaterial>>,
+) {
+    spawn_environment(commands);
+    spawn_lander(commands, meshes, materials);
+}
+```
+
+#### Step 3: Modify main.rs to Use These Modules
+
+Now, clean up src/main.rs to just initialize Bevy and call our setup function.
+
+```rust
+mod components;
+mod setup;
+
+use bevy::prelude::*;
+use setup::setup_game;
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0)))
+        .add_systems(Startup, setup_game)
+        .run();
+}
+```
+
+###
