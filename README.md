@@ -67,7 +67,7 @@ rust-explorations/
 
     `cd rust-explorations`
 
-3. Explore projects and resources inside projects/ and rust-misc/.
+3. Explore projects and resources inside `projects/` and `rust-misc/`.
 
 ## 📝 Contributing
 
