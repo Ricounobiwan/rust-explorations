@@ -1,0 +1,9 @@
+# Ignore PDFs
+*.pdf
+
+# Ignore Rust build artifacts
+/target
+**/target/
+
+# Ignore Cargo.lock in libraries
+Cargo.lock
