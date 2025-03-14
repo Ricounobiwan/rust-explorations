@@ -150,7 +150,7 @@ Now, let's save our progress in Git:
 cd rust-explorations/projects/rust-wasm-bevy
 git add lunar_lander_web
 git commit -m "Setup Rust + Bevy + WASM project"
-````
+```
 
 - Next Steps
 
@@ -160,3 +160,63 @@ Now that the basic setup is complete, the next steps are:
 - Adding the Lunar Lander sprite
 - Implementing physics (gravity, thrust)
 - Adding keyboard controls
+
+## 🚀 Step 2: Rendering a Background (Moon Surface)
+
+Now that our WebAssembly setup is working, let's make sure something actually renders in the browser!
+
+We will:
+
+- Set a background color (black for space)
+- Render a simple rectangle to represent the moon's surface
+- Verify that everything is running correctly in the browser
+
+### 🛠️ 2.1 Modify src/main.rs to Add a Background
+
+Update your main.rs to include:
+
+- A black background (for space)
+- A gray rectangle (for the moon’s surface)
+
+```rust
+use bevy::prelude::*;
+
+fn main() {
+    App::new()
+        .add_plugins(DefaultPlugins)
+        .insert_resource(ClearColor(Color::rgb(0.0, 0.0, 0.0))) // Black background
+        .add_systems(Startup, setup)
+        .run();
+}
+
+fn setup(mut commands: Commands) {
+    // Spawn a 2D camera (needed to see objects)
+    commands.spawn(Camera2dBundle::default());
+
+    // Spawn the moon surface as a gray rectangle
+    commands.spawn(SpriteBundle {
+        sprite: Sprite {
+            color: Color::rgb(0.3, 0.3, 0.3), // Gray color for the moon
+            custom_size: Some(Vec2::new(600.0, 50.0)), // Wide rectangle
+            ..Default::default()
+        },
+        transform: Transform::from_xyz(0.0, -250.0, 0.0), // Position at the bottom
+        ..Default::default()
+    });
+}
+```
+
+### 🚀 2.2 Run and Test in the Browser
+
+Rebuild and serve your WebAssembly app:
+
+`trunk serve --open`
+
+You should now see:
+    - A black background (space)
+    - A gray rectangle at the bottom (moon surface)
+
+If you still see a blank page:
+    - Check the browser console (F12 → Console tab) for errors.
+    - Ensure trunk is running correctly.
+    - Force reload (Ctrl + Shift + R or Cmd + Shift + R on Mac).
