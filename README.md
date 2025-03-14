@@ -19,20 +19,21 @@ rust-explorations/
 │   ├── templates/                    # Starter templates for common setups
 │   ├── experiments/                  # One-off technical tests & research
 │   ├── cheatsheets/                  # Markdown files with quick notes
-│   ├── books/                        # Learning programs from books
-│   │   ├── TheRustBook/
-│   │   │   ├── chapter-01-variables/
-│   │   │   ├── chapter-02-functions/
-│   │   │   ├── chapter-03-ownership/
+│   ├── books-and-courses/            # Learning programs from books and courses
+│   │   ├──books/
+│   │   │   ├── TheRustBook/
+│   │   │   │   ├── chapter-01-variables/
+│   │   │   │   ├── chapter-02-functions/
+│   │   │   │   ├── chapter-03-ownership/
+│   │   │   │   └── README.md
+│   │   │   ├── RustForRustaceans/
+│   │   │   ├── ProgrammingRust/
 │   │   │   └── README.md
-│   │   ├── RustForRustaceans/
-│   │   ├── ProgrammingRust/
-│   │   └── README.md
-│   ├── courses/                      # Learning programs from courses
-│   │   ├── Udemy-Rust-WebAssembly/
-│   │   ├── Udemy-Bevy-GameDev/
-│   │   ├── FastAI-Rust-ML/
-│   │   └── README.md
+│   │   ├── courses/                      # Learning programs from courses
+│   │       ├── Udemy-Rust-WebAssembly/
+│   │       ├── Udemy-Bevy-GameDev/
+│   │       ├── FastAI-Rust-ML/
+│   │       └── README.md
 │   ├── flashcards/                    # Where flashcard-based learning happens
 │   │   ├── concepts.md
 │   │   ├── memory-tricks.md
