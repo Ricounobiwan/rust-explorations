@@ -1,0 +1,8 @@
+[package]
+name = "lunar_lander_web"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = "0.13"
+uuid = { version = "1.6", features = ["js"] }
